@@ -1,5 +1,5 @@
 # 修改默认IP & 固件名称 & 编译署名和时间
-sed -i 's/192.168.1.1/192.168.2.1/g' package/base-files/files/bin/config_generate
+sed -i 's/192.168.1.1/192.168.7.1/g' package/base-files/files/bin/config_generate
 sed -i "s/hostname='.*'/hostname='Roc'/g" package/base-files/files/bin/config_generate
 sed -i "s#_('Firmware Version'), (L\.isObject(boardinfo\.release) ? boardinfo\.release\.description + ' / ' : '') + (luciversion || ''),# \
             _('Firmware Version'),\n \
@@ -8,7 +8,7 @@ sed -i "s#_('Firmware Version'), (L\.isObject(boardinfo\.release) ? boardinfo\.r
                 ? boardinfo.release.description + ' / '\n \
                 : '') + (luciversion || '') + ' / ',\n \
             E('a', {\n \
-                href: 'https://github.com/laipeng668/openwrt-ci-roc/releases',\n \
+                href: 'https://github.com/itpleb/openwrt-ci-roc/releases',\n \
                 target: '_blank',\n \
                 rel: 'noopener noreferrer'\n \
                 }, [ 'Built by Roc $(date "+%Y-%m-%d %H:%M:%S")' ])\n \
@@ -46,12 +46,12 @@ function git_sparse_clone() {
 }
 
 # ariang & Go & frp & WolPlus & Argon & Aurora & OpenList & Lucky & wechatpush & OpenAppFilter & 集客无线AC控制器 & 雅典娜LED控制
-git_sparse_clone ariang https://github.com/laipeng668/packages net/ariang
-git_sparse_clone master https://github.com/laipeng668/packages lang/golang
+git_sparse_clone ariang https://github.com/itpleb/packages net/ariang
+git_sparse_clone master https://github.com/itpleb/packages lang/golang
 mv -f package/golang feeds/packages/lang/golang
-git_sparse_clone frp https://github.com/laipeng668/packages net/frp
+git_sparse_clone frp https://github.com/itpleb/packages net/frp
 mv -f package/frp feeds/packages/net/frp
-git_sparse_clone frp https://github.com/laipeng668/luci applications/luci-app-frpc applications/luci-app-frps
+git_sparse_clone frp https://github.com/itpleb/luci applications/luci-app-frpc applications/luci-app-frps
 mv -f package/luci-app-frpc feeds/luci/applications/luci-app-frpc
 mv -f package/luci-app-frps feeds/luci/applications/luci-app-frps
 git_sparse_clone main https://github.com/VIKINGYFY/packages luci-app-wolplus
