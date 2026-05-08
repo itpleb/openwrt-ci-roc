@@ -12,7 +12,7 @@
 - 云编译来源：[haiibo](https://github.com/haiibo/OpenWrt) [视频教程](https://www.youtube.com/watch?v=6j4ofS0GT38&t=507s)
 
 ## 仓库说明
-- 本人 Fork 的仓库：[ImmortalWrt](https://github.com/itpleb/immortalwrt) [LibWrt](https://github.com/itpleb/openwrt-6.x)，内容大体一致。
+- 本人 Fork 的仓库：[ImmortalWrt](https://github.com/itpleb/immortalwrt) [LibWrt](https://github.com/laipeng668/openwrt-6.x)，内容大体一致。
 - `ImmortalWrt` 和 `LibWrt` 分别通过 rebase 和 merge 进行更新，相互印证。
 - `LibWrt` 因为 DTS 更为丰富，所以支持更多的机型。
 
