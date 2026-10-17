@@ -45,7 +45,7 @@ function git_sparse_clone() {
   cd .. && rm -rf $repodir
 }
 
-# ariang & Go & frp & WolPlus & Argon & Aurora & OpenList & Lucky & wechatpush & OpenAppFilter & 集客无线AC控制器 & 雅典娜LED控制
+# ariang & Go & frp & WolPlus & Argon & Design & OpenList & Lucky & wechatpush & OpenAppFilter & 集客无线AC控制器 & 雅典娜LED控制
 git_sparse_clone ariang https://github.com/laipeng668/packages net/ariang
 git_sparse_clone master https://github.com/laipeng668/packages lang/golang
 mv -f package/golang feeds/packages/lang/golang
@@ -57,8 +57,21 @@ mv -f package/luci-app-frps feeds/luci/applications/luci-app-frps
 git_sparse_clone main https://github.com/VIKINGYFY/packages luci-app-wolplus
 git clone --depth=1 https://github.com/jerrykuku/luci-theme-argon feeds/luci/themes/luci-theme-argon
 git clone --depth=1 https://github.com/jerrykuku/luci-app-argon-config feeds/luci/applications/luci-app-argon-config
-git clone --depth=1 https://github.com/eamonxg/luci-theme-aurora feeds/luci/themes/luci-theme-aurora
-git clone --depth=1 https://github.com/eamonxg/luci-app-aurora-config feeds/luci/applications/luci-app-aurora-config
+git clone --depth=1 -b js https://github.com/papagaye744/luci-theme-design feeds/luci/themes/luci-theme-design
+# 开机默认使用 Argon。99_ 排在 Design、Bootstrap 的 30_ 脚本之后，顶栏才是 iStoreOS 那条蓝紫色
+mkdir -p feeds/luci/themes/luci-theme-argon/root/etc/uci-defaults
+cat > feeds/luci/themes/luci-theme-argon/root/etc/uci-defaults/99_luci-theme-argon << 'EOF'
+#!/bin/sh
+if [ "$PKG_UPGRADE" != 1 ]; then
+	uci -q batch <<-EOC
+		set luci.themes.Argon=/luci-static/argon
+		set luci.main.mediaurlbase=/luci-static/argon
+		commit luci
+	EOC
+fi
+exit 0
+EOF
+chmod +x feeds/luci/themes/luci-theme-argon/root/etc/uci-defaults/99_luci-theme-argon
 git clone --depth=1 https://github.com/sbwml/luci-app-openlist2 package/openlist2
 git clone --depth=1 https://github.com/gdy666/luci-app-lucky package/luci-app-lucky
 git clone --depth=1 https://github.com/tty228/luci-app-wechatpush package/luci-app-wechatpush
@@ -83,5 +96,14 @@ git clone --depth=1 https://github.com/vernesong/OpenClash package/luci-app-open
 # 清理 PassWall 的 chnlist 规则文件
 echo "baidu.com"  > package/luci-app-passwall/luci-app-passwall/root/usr/share/passwall/rules/chnlist
 
+# iStore 商店，以及大首页后端 quickstart
+grep -q '^src-git istore ' feeds.conf.default || echo 'src-git istore https://github.com/linkease/istore.git;main' >> feeds.conf.default
+grep -q '^src-git nas ' feeds.conf.default || echo 'src-git nas https://github.com/linkease/nas-packages.git;master' >> feeds.conf.default
+
 ./scripts/feeds update -a
+
+# 用 qzrsa/luci-app-myhome 替换官方大首页。目录名必须是 luci-app-quickstart，包名才不会变
+rm -rf package/luci-app-quickstart
+git clone --depth=1 https://github.com/qzrsa/luci-app-myhome.git package/luci-app-quickstart
+
 ./scripts/feeds install -a
