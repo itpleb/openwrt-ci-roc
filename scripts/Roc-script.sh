@@ -116,9 +116,33 @@ git clone --depth=1 https://github.com/qzrsa/luci-app-myhome.git package/luci-ap
 ./scripts/feeds install -p nas quickstart || exit 1
 ./scripts/feeds install -a || exit 1
 
+# 软件源装进来的包是指向 feeds 目录的链接。find 默认不走进链接，会把已经装好的包误判成没有。
+pkg_makefile() {
+	find -L package -path "*/$1/Makefile" -print -quit 2>/dev/null
+}
+
+if [ -z "$(pkg_makefile luci-app-store)" ]; then
+	echo "软件源索引里没有 luci-app-store，改为直接下载商店相关的包"
+	rm -rf /tmp/istore-src
+	git clone --depth=1 -b main --single-branch https://github.com/linkease/istore.git /tmp/istore-src
+	cp -a /tmp/istore-src/luci/luci-app-store /tmp/istore-src/luci/luci-lib-taskd /tmp/istore-src/luci/luci-lib-xterm /tmp/istore-src/luci/taskd package/
+	rm -rf /tmp/istore-src
+fi
+
+if [ -z "$(pkg_makefile quickstart)" ]; then
+	echo "软件源索引里没有 quickstart，改为直接下载"
+	rm -rf /tmp/nas-src
+	git clone --depth=1 -b master --single-branch --filter=blob:none --sparse https://github.com/linkease/nas-packages.git /tmp/nas-src
+	git -C /tmp/nas-src sparse-checkout set network/services/quickstart
+	cp -a /tmp/nas-src/network/services/quickstart package/
+	rm -rf /tmp/nas-src
+fi
+
 for pkg in luci-app-store luci-lib-taskd luci-lib-xterm taskd quickstart; do
-	if ! find package -path "*/${pkg}/Makefile" | grep -q .; then
+	makefile="$(pkg_makefile "$pkg")"
+	if [ -z "$makefile" ]; then
 		echo "缺少软件包 ${pkg}，大首页依赖它。停止编译，避免白等几个小时。"
 		exit 1
 	fi
+	echo "已找到 ${pkg}: ${makefile}"
 done
