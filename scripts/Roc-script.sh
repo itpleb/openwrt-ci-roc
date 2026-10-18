@@ -96,14 +96,29 @@ git clone --depth=1 https://github.com/vernesong/OpenClash package/luci-app-open
 # 清理 PassWall 的 chnlist 规则文件
 echo "baidu.com"  > package/luci-app-passwall/luci-app-passwall/root/usr/share/passwall/rules/chnlist
 
-# iStore 商店，以及大首页后端 quickstart
+# iStore 商店，以及大首页后端 quickstart。
+# feeds.conf.default 末尾如果没有换行，后面追加的源会粘到 istore 那一行。
+# 粘住之后 feeds update 会删掉已经下好的 istore，luci-app-store 和 quickstart 都编不出来，
+# 要等到打包固件时才报 no such package。
+if [ -s feeds.conf.default ] && [ -n "$(tail -c1 feeds.conf.default)" ]; then
+	echo >> feeds.conf.default
+fi
 grep -q '^src-git istore ' feeds.conf.default || echo 'src-git istore https://github.com/linkease/istore.git;main' >> feeds.conf.default
 grep -q '^src-git nas ' feeds.conf.default || echo 'src-git nas https://github.com/linkease/nas-packages.git;master' >> feeds.conf.default
 
-./scripts/feeds update -a
+./scripts/feeds update istore nas || exit 1
 
 # 用 qzrsa/luci-app-myhome 替换官方大首页。目录名必须是 luci-app-quickstart，包名才不会变
 rm -rf package/luci-app-quickstart
 git clone --depth=1 https://github.com/qzrsa/luci-app-myhome.git package/luci-app-quickstart
 
-./scripts/feeds install -a
+./scripts/feeds install -p istore luci-app-store luci-lib-taskd luci-lib-xterm taskd || exit 1
+./scripts/feeds install -p nas quickstart || exit 1
+./scripts/feeds install -a || exit 1
+
+for pkg in luci-app-store luci-lib-taskd luci-lib-xterm taskd quickstart; do
+	if ! find package -path "*/${pkg}/Makefile" | grep -q .; then
+		echo "缺少软件包 ${pkg}，大首页依赖它。停止编译，避免白等几个小时。"
+		exit 1
+	fi
+done

@@ -10,6 +10,7 @@
 ## 项目说明
 - 默认管理地址：**`192.168.7.1`** 默认用户：**`root`** 默认密码：**`none`**
 - 默认主题：**Argon**（顶栏蓝紫色 `#5e72e4`）。首页用 [luci-app-myhome](https://github.com/qzrsa/luci-app-myhome)，也就是 iStoreOS 大首页的定制版。Design 仍会一并编译，可在系统里手动切换。
+- 大首页还依赖两个软件源：商店 [istore](https://github.com/linkease/istore) 里的 `luci-app-store`，以及 [nas-packages](https://github.com/linkease/nas-packages) 里的 `quickstart`。`Roc-script.sh` 会装上它们。少了这两个包时，编译会在开始前停下，不会再编几个小时后才失败。
 - 云编译来源：[haiibo](https://github.com/haiibo/OpenWrt) [视频教程](https://www.youtube.com/watch?v=6j4ofS0GT38&t=507s)
 
 ## 仓库说明
